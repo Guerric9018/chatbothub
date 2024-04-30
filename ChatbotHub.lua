@@ -16,7 +16,10 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
+local alreadyRan = true
+
 if _G.CHATBOTHUB_RAN == nil then
+    alreadyRan = false
 	_G.CHATBOTHUB_ON = false
 	_G.CHATBOTHUB_CREDITS = 0
 	_G.CHATBOTHUB_LOGIN = false
@@ -466,10 +469,9 @@ end
 
 local Players = game:GetService("Players")
 
-if _G.CHATBOTHUB_RAN then
+if not alreadyRan then
 	Players.PlayerChatted:Connect(function(type, plr, message)
 		if _G.CHATBOTHUB_CUSTOMPROMPT and (not _G.CHATBOTHUB_PREMIUM) then resetTogglePrem() end
-		print(message)
 		if not _G.CHATBOTHUB_LOGIN then return end
 		if _G.CHATBOTHUB_BLACKLISTED[plr.Name] then return end
 		if _G.CHATBOTHUB_CREDITS == 0 then 
