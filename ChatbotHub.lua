@@ -49,6 +49,7 @@ local AIs = {
 	"Nerd",
 	"Christian",
 	"Robot",
+    "Brainrot",
 	"Normal"
 }
 
@@ -377,14 +378,14 @@ ChatTab:AddTextbox{
 		 CreditLabel:Set(_G.CHATBOTHUB_CREDITS)
 	 
 	 -- Print each chunk
-		 for i = 1, numChunks do
-			local startIndex = (i - 1) * chunkSize + 1
-			local endIndex = math.min(i * chunkSize, #response)
-			local chunk = string.sub(response, startIndex, endIndex)
-			shownText = shownText .. chunk .. '\n'
-		 end
+		 --for i = 1, numChunks do
+			--local startIndex = (i - 1) * chunkSize + 1
+			--local endIndex = math.min(i * chunkSize, #response)
+			--local chunk = string.sub(response, startIndex, endIndex)
+			--shownText = shownText .. chunk .. '\n'
+		 --end
 		
-		updateChat(shownText)
+		updateChat(response)
 	end
 }
 
