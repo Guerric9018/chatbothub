@@ -84,7 +84,7 @@ local function login(key)
 		updatePremium()
 		OrionLib:MakeNotification{
 			Name = "Logged in",
-			Content = "You successfully logged in!\nYou have ".._G.CHATBOTHUB_CREDITS.." credits.",
+			Content = "You successfully logged in!\nYou have ".._G.CHATBOTHUB_CREDITS.." points.",
 			Image = "rbxassetid://7115671043",
 			Time = 3
 		}
@@ -182,7 +182,7 @@ resetToggle = function()
 	doCallback = true
 end
 
-local CreditLabel = MainTab:AddLabel("Credits balance: ".. _G.CHATBOTHUB_CREDITS)
+local CreditLabel = MainTab:AddLabel("Points balance: ".. _G.CHATBOTHUB_CREDITS)
 
 updateCredits = function()
 	CreditLabel:Set(_G.CHATBOTHUB_CREDITS)
@@ -256,7 +256,7 @@ local resetTogglePrem = function() return end
 local CharDropdown = CharacterTab:AddDropdown{
 	Name = "Select the character of your AI",
 	Default = _G.CHATBOTHUB_Character,
-	Description = "List is subject to change in future updates! Give ideas in the Discord Server!",
+	Description = "List is subject to change in future updates! Give ideas in the Discord server!",
 	Options = AIs,
 	Callback = function(SelectedCharacter) 
 		_G.CHATBOTHUB_Character = SelectedCharacter 
@@ -370,8 +370,8 @@ ChatTab:AddTextbox{
 	 
 		_G.CHATBOTHUB_CREDITS -= 1
 		OrionLib:MakeNotification{
-		 Name = "1 credit used",
-		 Content = tostring(_G.CHATBOTHUB_CREDITS) .. " credits left",
+		 Name = "1 point used",
+		 Content = tostring(_G.CHATBOTHUB_CREDITS) .. " points left",
 		 Time = 1
 		 }
 		 CreditLabel:Set(_G.CHATBOTHUB_CREDITS)
@@ -396,7 +396,7 @@ MoreTab:AddTextbox{
 }
 
 MoreTab:AddButton{
-	Name = "Official discord server",
+	Name = "Official Discord server",
 	Description = "Click to copy the link",
 	Callback = function() 
 		OrionLib:MakeNotification{
@@ -413,7 +413,7 @@ HelpTab:AddParagraph("Help",
 	"<b>\nIf you encounter issues. Please check the following:</b>\n\n" ..
 		"<font color=\"rgb(255, 0, 0)\"><b>• Have you logged in?</b></font> Have you put your key in the 'more' tab? If not, go get your key on Discord then come back.\n" ..
 		"<font color=\"rgb(255, 0, 0)\"><b>• Have you set 'Running' on in the main tab?</b></font>\n" ..
-		"<font color=\"rgb(255, 0, 0)\"><b>• Do you have enough credits to generate responses?</b></font>\n\n" ..
+		"<font color=\"rgb(255, 0, 0)\"><b>• Do you have enough points to generate responses?</b></font>\n\n" ..
 		"<b>If nothing works please ask your question in the Discord server.</b>")
 
 OrionLib:Init()
@@ -439,8 +439,8 @@ local function main(message, userDisplay, uid)
 
    _G.CHATBOTHUB_CREDITS -= 1
    OrionLib:MakeNotification{
-    Name = "1 credit used",
-    Content = tostring(_G.CHATBOTHUB_CREDITS) .. " credits left",
+    Name = "1 points used",
+    Content = tostring(_G.CHATBOTHUB_CREDITS) .. " points left",
     Time = 1
     }
     CreditLabel:Set(_G.CHATBOTHUB_CREDITS)
@@ -478,7 +478,7 @@ if not alreadyRan then
 			CreditLabel:Set(0)
 			OrionLib:MakeNotification{
 				Name = "Alert",
-				Content = "No credits left on your account!",
+				Content = "No points left on your account!",
 				Time = 3,
 				Image = "rbxassetid://14895395597"
 			}
