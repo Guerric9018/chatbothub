@@ -345,7 +345,7 @@ ChatTab:AddButton{
 	end
 }
 
-local text = ""
+local ChatText = ""
 
 local ChatLabel = ChatTab:AddParagraph("AI's answer","")
 
