@@ -45,6 +45,8 @@ end
 
 
 local AIs = {
+	"Furry",
+	"Roast",
 	"Waifu",
 	"Nerd",
 	"Christian",
@@ -55,7 +57,7 @@ local AIs = {
 
 if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_MaxDistance = 20
-	_G.CHATBOTHUB_Character = "Waifu"
+	_G.CHATBOTHUB_Character = "Furry"
 end
 
 _G.CHATBOTHUB_RAN = true
@@ -343,9 +345,26 @@ ChatTab:AddButton{
 	end
 }
 
+local text = ""
+
 local ChatLabel = ChatTab:AddParagraph("AI's answer","")
 
+local CopyButton = ChatTab:AddButton{
+	Name = "Copy the answer",
+	Description = "Click to copy the full answer",
+	Callback = function() 
+		OrionLib:MakeNotification{
+			Name = "ChatBot response",
+			Content = "ChatBot response copied to clipboard",
+			Time = 3,
+			Image = "rbxassetid://10337369764"
+		}
+		setclipboard(ChatText) 
+	end
+}
+
 updateChat = function(message)
+	text = message
 	ChatLabel:Set(message)
 end
 
@@ -366,8 +385,6 @@ ChatTab:AddTextbox{
 		end
 		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&gpt=4")
 		
-		local chunkSize = 70
-		local numChunks = math.ceil(#response / chunkSize)
 	 
 		_G.CHATBOTHUB_CREDITS -= 1
 		OrionLib:MakeNotification{
