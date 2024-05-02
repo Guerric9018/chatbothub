@@ -57,7 +57,7 @@ local AIs = {
 
 if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_MaxDistance = 20
-	_G.CHATBOTHUB_Character = "Waifu"
+	_G.CHATBOTHUB_Character = "Normal"
 end
 
 _G.CHATBOTHUB_RAN = true
