@@ -364,7 +364,7 @@ local CopyButton = ChatTab:AddButton{
 }
 
 updateChat = function(message)
-	text = message
+	ChatText = message
 	ChatLabel:Set(message)
 end
 
