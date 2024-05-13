@@ -26,6 +26,8 @@ if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_PREMIUM = false
 	_G.CHATBOTHUB_CUSTOMPROMPT = false
 	_G.CHATBOTHUB_CUSTOMPROMPTTEXT = "Just be a normal AI."
+    _G.CHATBOTHUB_WHITELIST = false
+	_G.CHATBOTHUB_BOTFORMAT = true
 end
 
 local msg = function() return end
@@ -82,7 +84,6 @@ local function login(key)
 		_G.CHATBOTHUB_CREDITS = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/credits?uid="..LocalPlayer.UserId))
 		local premium = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/premium?uid="..LocalPlayer.UserId))
 		if premium == 1 then _G.CHATBOTHUB_PREMIUM = true else _G.CHATBOTHUB_PREMIUM = false end
-		print(_G.CHATBOTHUB_PREMIUM)
 		updateCredits()
 		updatePremium()
 		OrionLib:MakeNotification{
@@ -194,7 +195,7 @@ end
 local addPlayer = function() return end
 local removePlayer = function() return end
 
-MainTab:AddTextbox({
+local BlacklistTextbox = MainTab:AddTextbox({
 	Name = "Blacklist player",
 	Default = "",
 	TextDisappear = true,
@@ -212,7 +213,6 @@ local BlacklistedDropdown = MainTab:AddDropdown({
 })
 
 addPlayer = function(player)
-	print(player)
 	local FullName, Name = findPlayerName(player)
 	if FullName==nil then return end
 	_G.CHATBOTHUB_BLACKLISTED[FullName] = true
@@ -226,7 +226,6 @@ removePlayer = function(player)
 	if FullName==nil then return end
 	_G.CHATBOTHUB_BLACKLISTED[FullName] = false
 	for i, v in ipairs(_G.CHATBOTHUB_BLACKLISTEDCONTENT) do
-		print(v)
 		if v == player then 
 			table.remove(_G.CHATBOTHUB_BLACKLISTEDCONTENT, i)
 		end
@@ -245,6 +244,22 @@ MainTab:AddButton{
 	end
 }
 
+MainTab:AddToggle{
+	Name = "Whitelist mode",
+    Default = _G.CHATBOTHUB_WHITELIST,
+	Callback = function(state) 
+        if state == false then
+		    BlacklistedDropdown:Title("Blacklisted players")
+            BlacklistTextbox:Title("Blacklist player")
+            _G.CHATBOTHUB_WHITELIST = state
+        else
+            BlacklistedDropdown:Title("Whitelisted players")
+            BlacklistTextbox:Title("Whitelist player")
+            _G.CHATBOTHUB_WHITELIST = state
+        end
+	end
+}
+
 MainTab:AddTextbox({
 	Name = "Listening range",
 	Default = "20",
@@ -253,6 +268,14 @@ MainTab:AddTextbox({
 		_G.CHATBOTHUB_MaxDistance = tonumber(value)
 	end	  
 })
+
+MainTab:AddToggle{
+	Name = "Chatbot message formatting ([Chatbot] ...)",
+    Default = _G.CHATBOTHUB_BOTFORMAT,
+	Callback = function(state) 
+        _G.CHATBOTHUB_BOTFORMAT = state
+	end
+}
 
 local resetTogglePrem = function() return end
 
@@ -393,14 +416,6 @@ ChatTab:AddTextbox{
 		 Time = 1
 		 }
 		 CreditLabel:Set(_G.CHATBOTHUB_CREDITS)
-	 
-	 -- Print each chunk
-		 --for i = 1, numChunks do
-			--local startIndex = (i - 1) * chunkSize + 1
-			--local endIndex = math.min(i * chunkSize, #response)
-			--local chunk = string.sub(response, startIndex, endIndex)
-			--shownText = shownText .. chunk .. '\n'
-		 --end
 		
 		updateChat(response)
 	end
@@ -446,13 +461,16 @@ local function main(message, userDisplay, uid)
 		custom = "yes"
 	end
     local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&gpt=3.5")
-    print(response)
     local data = response
     
     local responseText = data:gsub("i love you", "ily"):gsub("wtf", "wt$"):gsub("zex", "zesty"):gsub("\n", " "):gsub("I love you", "ily"):gsub("I don't know what you're saying. Please teach me.", "I do not understand, try saying it without emojis and/or special characters.")
     if responseText == "" then return end
    wait()
-   local chunkSize = 160
+   local offset = 0
+   if _G.CHATBOTHUB_BOTFORMAT then
+	offset = 12 + #userDisplay
+   end
+   local chunkSize = 195 - offset
    local numChunks = math.ceil(#responseText / chunkSize)
 
    _G.CHATBOTHUB_CREDITS -= 1
@@ -463,17 +481,19 @@ local function main(message, userDisplay, uid)
     }
     CreditLabel:Set(_G.CHATBOTHUB_CREDITS)
 
--- Print each chunk
     for i = 1, numChunks do
         local startIndex = (i - 1) * chunkSize + 1
         local endIndex = math.min(i * chunkSize, #responseText)
+		local intro = ""
         local chunk = string.sub(responseText, startIndex, endIndex)
-        local intro = "[ChatBot]: "
+		if _G.CHATBOTHUB_BOTFORMAT then
+        	local intro = "[ChatBot]: "
+		end
         local chunkProgress = " "..i.."/"..numChunks
         if numChunks == 1 then 
             chunkProgress = ""
         end
-        if i == 1 then 
+        if _G.CHATBOTHUB_BOTFORMAT and i == 1 then 
             intro = "[ChatBot]: "..userDisplay.. ", "
         end
 
@@ -482,7 +502,6 @@ local function main(message, userDisplay, uid)
         wait(0.1)
     end
 
-   print(userDisplay..", "..responseText)
 end
 
 local Players = game:GetService("Players")
@@ -491,12 +510,12 @@ if not alreadyRan then
 	Players.PlayerChatted:Connect(function(type, plr, message)
 		if _G.CHATBOTHUB_CUSTOMPROMPT and (not _G.CHATBOTHUB_PREMIUM) then resetTogglePrem() end
 		if not _G.CHATBOTHUB_LOGIN then return end
-		if _G.CHATBOTHUB_BLACKLISTED[plr.Name] then return end
+		if (_G.CHATBOTHUB_BLACKLISTED[plr.Name] and not _G.CHATBOTHUB_WHITELIST) or (_G.CHATBOTHUB_WHITELIST and not _G.CHATBOTHUB_BLACKLISTED[plr.Name]) then return end
 		if _G.CHATBOTHUB_CREDITS == 0 then 
 			CreditLabel:Set(0)
 			OrionLib:MakeNotification{
 				Name = "Alert",
-				Content = "No points left on your account!",
+				Content = "No points left on your account! If you think this is an error, please login again.",
 				Time = 3,
 				Image = "rbxassetid://14895395597"
 			}
