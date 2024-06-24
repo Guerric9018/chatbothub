@@ -64,8 +64,8 @@ AiModels = {
 }
 
 AiCost = {
-	"Llama-8B ( default )" = 1,
-	"Llama-70B ( x10 points )" = 10
+	["Llama-8B ( default )"] = 1,
+	["Llama-70B ( x10 points )"] = 10
 }
 
 if _G.CHATBOTHUB_RAN == nil then
