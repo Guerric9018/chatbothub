@@ -20,6 +20,7 @@ local alreadyRan = true
 
 if _G.CHATBOTHUB_RAN == nil then
     alreadyRan = false
+	_G.CHATBOTHUB_TTA = false
 	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default )"
 	_G.CHATBOTHUB_ON = false
 	_G.CHATBOTHUB_CREDITS = 0
@@ -29,6 +30,7 @@ if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_CUSTOMPROMPTTEXT = "Just be a normal AI."
     _G.CHATBOTHUB_WHITELIST = false
 	_G.CHATBOTHUB_BOTFORMAT = true
+	_G.CHATBOTHUB_TTA_RUNNING = true
 end
 
 local msg = function() return end
@@ -78,6 +80,101 @@ _G.CHATBOTHUB_RAN = true
 local updateCredits = function() return end
 local updatePremium = function() return end
 
+
+local findPlayerName = function(name)
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.Name:sub(1, prefix_length)
+		if(name_prefix == name) then
+			return player.Name, player.DisplayName
+		end
+	end
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.DisplayName:sub(1, prefix_length)
+		if(name_prefix == name) then
+			return player.Name, player.DisplayName
+		end
+	end
+	return nil, nil
+end
+
+local findPlayer = function(name)
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.Name:sub(1, prefix_length)
+		if(string.lower(name_prefix) == name) then
+			return player
+		end
+	end
+	for i,player in pairs(game.Players:GetChildren()) do
+		local prefix_length = #name
+		local name_prefix = player.DisplayName:sub(1, prefix_length)
+		if(string.lower(name_prefix) == name) then
+			return player
+		end
+	end
+	return nil, nil
+end
+
+
+local function stopAction()
+	print(stopping)
+	_G.CHATBOTHUB_TTA_RUNNING = false
+	wait(1)
+	_G.CHATBOTHUB_TTA_RUNNING = true
+end
+
+local function jump()
+	LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+end
+
+local function spin()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local humanoidRootPart = LocalPlayer.Character.HumanoidRootPart
+        
+        while _G.CHATBOTHUB_TTA_RUNNING do
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.Angles(0, math.rad(15), 0)
+            wait(0.1)
+        end
+	end
+end
+
+local function follow(player)
+	local TargetPlayer = findPlayer(player)
+	print("following " .. TargetPlayer.DisplayName)
+	while _G.CHATBOTHUB_TTA_RUNNING do
+		LocalPlayer.Character:FindFirstChildOfClass('Humanoid'):MoveTo(TargetPlayer.Character.HumanoidRootPart.Position)
+		wait(0.05)
+	end
+end
+
+local function checkCommand(input)
+	input = string.lower(input)
+    if input == "stop" then 
+		stopAction()
+		return
+	end
+	if input == "jump" then 
+		jump()
+		return
+	end
+	if input == "spin" then 
+		spin()
+		return
+	end
+	if input == "null" then
+		return
+	end
+
+    local followPattern = "^follow%s+(.+)"
+    local match = string.match(input, followPattern)
+
+    if match then
+        follow(match)
+    end
+end
+
 local function login(key)
 	key = HttpService:UrlEncode(key)
 	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(LocalPlayer.UserId)) .. "&key=" .. key)
@@ -108,25 +205,6 @@ local function login(key)
 		return true
 	end
 end
-
-local findPlayerName = function(name)
-	for i,player in pairs(game.Players:GetChildren()) do
-		local prefix_length = #name
-		local name_prefix = player.Name:sub(1, prefix_length)
-		if(name_prefix == name) then
-			return player.Name, player.DisplayName
-		end
-	end
-	for i,player in pairs(game.Players:GetChildren()) do
-		local prefix_length = #name
-		local name_prefix = player.DisplayName:sub(1, prefix_length)
-		if(name_prefix == name) then
-			return player.Name, player.DisplayName
-		end
-	end
-	return nil, nil
-end
-
 
 local Window = OrionLib:MakeWindow({
 	Name = "ChatBot Hub",
@@ -311,6 +389,14 @@ local AiDropDown = CharacterTab:AddDropdown{
 	end
 }
 
+local TTAToggle = PremiumTab:AddToggle{
+	Name = "Test to action mode ( 2x points )",
+	Default = _G.CHATBOTHUB_TTA,
+	Callback = function(state)
+		_G.CHATBOTHUB_TTA = state
+	end
+}
+
 
 
 local PremiumLabel = PremiumTab:AddLabel("Premium is NOT activated")
@@ -428,9 +514,8 @@ ChatTab:AddTextbox{
 			Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 			custom = "yes"
 		end
-		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=yes")
-		
-	 
+		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=yes&tta=no")
+
 		_G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]
 		OrionLib:MakeNotification{
 		 Name = tostring(AiCost[_G.CHATBOTHUB_AI_MODEL]) .. " points used",
@@ -482,9 +567,16 @@ local function main(message, userDisplay, uid)
 		Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 		custom = "yes"
 	end
-    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no")
+    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no&tta=no")
     local data = response
     
+			
+	if _G.CHATBOTHUB_TTA then
+		ttaResponse = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no&tta=yes")
+		print(ttaResponse)
+		checkCommand(ttaResponse)
+	end
+
     local responseText = data:gsub("i love you", "ily"):gsub("wtf", "wt$"):gsub("zex", "zesty"):gsub("\n", " "):gsub("I love you", "ily"):gsub("I don't know what you're saying. Please teach me.", "I do not understand, try saying it without emojis and/or special characters.")
     if responseText == "" then return end
    wait()
@@ -495,9 +587,15 @@ local function main(message, userDisplay, uid)
    local chunkSize = 195 - offset
    local numChunks = math.ceil(#responseText / chunkSize)
 
-   _G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]
+   local mult = 1
+
+   if _G.CHATBOTHUB_TTA then
+		mult = 2
+   end
+
+   _G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]*mult
    OrionLib:MakeNotification{
-    Name = tostring(AiCost[_G.CHATBOTHUB_AI_MODEL]) .. " points used",
+    Name = tostring(AiCost[_G.CHATBOTHUB_AI_MODEL]*mult) .. " points used",
     Content = tostring(_G.CHATBOTHUB_CREDITS) .. " points left",
     Time = 1
     }
