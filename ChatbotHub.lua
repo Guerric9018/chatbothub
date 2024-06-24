@@ -63,6 +63,11 @@ AiModels = {
 	"Llama-70B ( x10 points )"
 }
 
+AiCost = {
+	"Llama-8B ( default )" = 1,
+	"Llama-70B ( x10 points )" = 10
+}
+
 if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_MaxDistance = 20
 	_G.CHATBOTHUB_Character = "Normal"
@@ -490,9 +495,9 @@ local function main(message, userDisplay, uid)
    local chunkSize = 195 - offset
    local numChunks = math.ceil(#responseText / chunkSize)
 
-   _G.CHATBOTHUB_CREDITS -= 1
+   _G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]
    OrionLib:MakeNotification{
-    Name = "1 points used",
+    Name = tostring(AiCost[_G.CHATBOTHUB_AI_MODEL]) .. " points used",
     Content = tostring(_G.CHATBOTHUB_CREDITS) .. " points left",
     Time = 1
     }
