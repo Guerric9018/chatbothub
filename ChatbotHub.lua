@@ -58,12 +58,12 @@ local AIs = {
 	"Normal"
 }
 
-AiModels = {
+local AiModels = {
 	"Llama-8B ( default )",
 	"Llama-70B ( x10 points )"
 }
 
-AiCost = {
+local AiCost = {
 	["Llama-8B ( default )"] = 1,
 	["Llama-70B ( x10 points )"] = 10
 }
