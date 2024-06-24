@@ -431,9 +431,9 @@ ChatTab:AddTextbox{
 		local response = game:HttpGet(request)
 		
 	 
-		_G.CHATBOTHUB_CREDITS -= 1
+		_G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]
 		OrionLib:MakeNotification{
-		 Name = "1 point used",
+		 Name = tostring(AiCost[_G.CHATBOTHUB_AI_MODEL]) .. " points used",
 		 Content = tostring(_G.CHATBOTHUB_CREDITS) .. " points left",
 		 Time = 1
 		 }
