@@ -20,6 +20,7 @@ local alreadyRan = true
 
 if _G.CHATBOTHUB_RAN == nil then
     alreadyRan = false
+	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default )"
 	_G.CHATBOTHUB_ON = false
 	_G.CHATBOTHUB_CREDITS = 0
 	_G.CHATBOTHUB_LOGIN = false
@@ -55,6 +56,11 @@ local AIs = {
 	"Robot",
     "Brainrot",
 	"Normal"
+}
+
+AiModels = {
+	"Llama-8B ( default )",
+	"Llama-70B ( x10 points )"
 }
 
 if _G.CHATBOTHUB_RAN == nil then
@@ -290,6 +296,17 @@ local CharDropdown = CharacterTab:AddDropdown{
 	end
 }
 
+local AiDropDown = CharacterTab:AddDropdown{
+	Name = "Select the AI model",
+	Default = _G.CHATBOTHUB_AI_MODEL,
+	Description = "Some AIs are smarter but cost more points!",
+	Options = AiModels,
+	Callback = function(SelectedModel) 
+		_G.CHATBOTHUB_AI_MODEL = SelectedModel
+	end
+}
+
+
 
 local PremiumLabel = PremiumTab:AddLabel("Premium is NOT activated")
 
@@ -396,7 +413,6 @@ ChatTab:AddTextbox{
 	Default = "",
 	TextDisappear = true,
 	Callback = function(message) 
-		message = HttpService:UrlEncode(message)
 		local userDisplayURI = HttpService:UrlEncode(LocalPlayer.DisplayName)
 		local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
 		local custom = "no"
@@ -406,7 +422,8 @@ ChatTab:AddTextbox{
 			Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 			custom = "yes"
 		end
-		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&gpt=4")
+		local request = HttpService:UrlEncode("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=yes")
+		local response = game:HttpGet(request)
 		
 	 
 		_G.CHATBOTHUB_CREDITS -= 1
@@ -452,7 +469,6 @@ HelpTab:AddParagraph("Help",
 OrionLib:Init()
 
 local function main(message, userDisplay, uid)
-    message = HttpService:UrlEncode(message)
     userDisplayURI = HttpService:UrlEncode(userDisplay)
     local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
 	local custom = "no"
@@ -460,7 +476,8 @@ local function main(message, userDisplay, uid)
 		Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 		custom = "yes"
 	end
-    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&gpt=3.5")
+	local request = HttpService:UrlEncode("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no")
+    local response = game:HttpGet(request)
     local data = response
     
     local responseText = data:gsub("i love you", "ily"):gsub("wtf", "wt$"):gsub("zex", "zesty"):gsub("\n", " "):gsub("I love you", "ily"):gsub("I don't know what you're saying. Please teach me.", "I do not understand, try saying it without emojis and/or special characters.")
