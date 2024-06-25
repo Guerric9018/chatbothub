@@ -7,6 +7,7 @@ The Chatbot Hub allows you to automatically chat with players around you using t
 - **Private chat**
 - **Blacklist/whitelist players system**
 - **Text to action / Obey players** (follow players, jump, spin, stop, ...)
+- **Chat bypass included**
 - **New features coming soon!**
 
 ## Demo
