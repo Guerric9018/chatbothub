@@ -143,7 +143,8 @@ end
 local function follow(player)
 	local TargetPlayer = findPlayer(player)
 	print("following " .. TargetPlayer.DisplayName)
-	while _G.CHATBOTHUB_TTA_RUNNING do
+	_G.CHATBOTHUB_TARGET_PLAYER = TargetPlayer
+	while _G.CHATBOTHUB_TTA_RUNNING  and TargetPlayer == _G.CHATBOTHUB_TARGET_PLAYER do
 		LocalPlayer.Character:FindFirstChildOfClass('Humanoid'):MoveTo(TargetPlayer.Character.HumanoidRootPart.Position)
 		wait(0.05)
 	end
