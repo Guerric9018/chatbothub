@@ -31,6 +31,7 @@ if _G.CHATBOTHUB_RAN == nil then
     _G.CHATBOTHUB_WHITELIST = false
 	_G.CHATBOTHUB_BOTFORMAT = true
 	_G.CHATBOTHUB_TTA_RUNNING = true
+	_G.CHATBOTHUB_CHAT_BYPASS = false
 end
 
 local msg = function() return end
@@ -79,6 +80,34 @@ _G.CHATBOTHUB_RAN = true
 
 local updateCredits = function() return end
 local updatePremium = function() return end
+
+
+local correspondances = {
+	["h"] = "ẖ",
+	["i"] = "ї",
+	["a"] = "ɑ",
+	["u"] = "ṷ",
+	["c"] = "с",
+	["g"] = "ɡ",
+	["n"] = "ṅ",
+	["e"] = "e",
+	["t"] = "ṭ",
+	["l"] = "ḻ",
+	["o"] = "ο",
+	["d"] = "d",
+	["s"] = "ṣ",
+	["k"] = "k",
+	["w"] = "ẇ"
+} 
+
+
+local function translate(m)
+	m = string.lower(m)
+	for i, j in pairs(correspondances) do
+		m = m:gsub(i, j)
+	end
+	return(m)
+end
 
 
 local findPlayerName = function(name)
@@ -149,6 +178,7 @@ local function follow(player)
 		wait(0.05)
 	end
 end
+
 
 local function checkCommand(input)
 	input = string.lower(input)
@@ -359,6 +389,19 @@ MainTab:AddTextbox({
 	end	  
 })
 
+MainTab:AddButton{
+	Name = "Reset AI memory",
+	Callback = function() 
+		game:HttpGet("https://guerric.pythonanywhere.com/erase-memory?uid=" .. tostring(LocalPlayer.UserId))
+		OrionLib:MakeNotification{
+			Name = "Success",
+			Content  = "AI's memory erased!",
+			Image = "rbxassetid://7115671043",
+			Time = 3
+		}
+	end
+}
+
 MainTab:AddToggle{
 	Name = "Chatbot message formatting ([Chatbot] ...)",
     Default = _G.CHATBOTHUB_BOTFORMAT,
@@ -366,6 +409,15 @@ MainTab:AddToggle{
         _G.CHATBOTHUB_BOTFORMAT = state
 	end
 }
+
+MainTab:AddToggle{
+	Name = "Chat bypass",
+    Default = _G.CHATBOTHUB_CHAT_BYPASS,
+	Callback = function(state) 
+        _G.CHATBOTHUB_CHAT_BYPASS = state
+	end
+}
+
 
 local resetTogglePrem = function() return end
 
@@ -571,6 +623,7 @@ local function main(message, userDisplay, uid)
     local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no&tta=no")
     local data = response
     
+	if _G.CHATBOTHUB_CHAT_BYPASS then data = translate(data) end
 			
 	if _G.CHATBOTHUB_TTA then
 		ttaResponse = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no&tta=yes")
@@ -649,3 +702,6 @@ if not alreadyRan then
 		end
 	end)
 end
+
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
