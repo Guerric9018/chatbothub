@@ -602,6 +602,20 @@ MoreTab:AddButton{
 	end
 }
 
+MoreTab:AddButton{
+	Name = "Chat bypass by Guerric",
+	Description = "Click to execute the script",
+	Callback = function() 
+		OrionLib:MakeNotification{
+			Name = "Chat bypass by Guerric",
+			Content = "Chat bypass script launched",
+			Time = 3,
+			Image = "rbxassetid://7115671043"
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Guerric9018/chat_bypass/main/main.lua"))()
+	end
+}
+
 HelpTab:AddParagraph("Help",
 	"<b>\nIf you encounter issues. Please check the following:</b>\n\n" ..
 		"<font color=\"rgb(255, 0, 0)\"><b>• Have you logged in?</b></font> Have you put your key in the 'more' tab? If not, go get your key on Discord then come back.\n" ..
