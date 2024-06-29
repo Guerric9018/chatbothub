@@ -616,7 +616,6 @@ MoreTab:AddTextbox{
 		if _G.CHATBOTHUB_LOADED then
 			login(key)
 		end
-		_G.CHATBOTHUB_LOADED = true
 	end
 }
 
@@ -749,5 +748,7 @@ if not alreadyRan then
 	end)
 end
 
+
+_G.CHATBOTHUB_LOADED = true
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
