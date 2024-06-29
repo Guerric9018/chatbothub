@@ -210,6 +210,7 @@ end
 
 local function login(key)
 	key = HttpService:UrlEncode(key)
+	_G.CHATBOTHUB_KEY = key
 	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(LocalPlayer.UserId)) .. "&key=" .. key)
 	if response == "REFUSED" then
 		OrionLib:MakeNotification{
@@ -233,7 +234,6 @@ local function login(key)
 			Image = "rbxassetid://7115671043",
 			Time = 3
 		}
-		_G.CHATBOTHUB_KEY = key
 		_G.CHATBOTHUB_LOGIN = true
 		return true
 	end
