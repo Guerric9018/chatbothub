@@ -444,15 +444,6 @@ local AiDropDown = CharacterTab:AddDropdown{
 	end
 }
 
-local TTAToggle = PremiumTab:AddToggle{
-	Name = "Test to action mode ( 2x points )",
-	Default = _G.CHATBOTHUB_TTA,
-	Callback = function(state)
-		_G.CHATBOTHUB_TTA = state
-	end
-}
-
-
 
 local PremiumLabel = PremiumTab:AddLabel("Premium is NOT activated")
 
@@ -468,23 +459,55 @@ updatePremium()
 
 local doCallbackPrem = true
 
+local resetToggleTTA = function() return end
+local doCallbackTTA = true
+
+local TTAToggle = PremiumTab:AddToggle{
+	Name = "Test to action mode ( 2x points )",
+	Default = _G.CHATBOTHUB_TTA,
+	Callback = function(state)
+		if _G.CHATBOTHUB_LOADED then
+			if not _G.CHATBOTHUB_PREMIUM then
+				if doCallbackTTA then
+					OrionLib:MakeNotification{
+						Name = "Error",
+						Content  = "You need to have premium to use this feature!",
+						Image = "rbxassetid://6723839910",
+						Time = 3
+					}
+					resetToggleTTA()
+				end
+			end
+			_G.CHATBOTHUB_TTA = state
+		end
+	end
+}
+
+resetToggleTTA = function()
+	doCallbackTTA = false
+	TTAToggle:Set(false)
+	wait(0.3)
+	doCallbackTTA = true
+end
+
 local CustomToggle = PremiumTab:AddToggle{
 	Name = "Enable custom prompt",
 	Default = _G.CHATBOTHUB_CUSTOMPROMPT,
 	Callback = function(state)
-
-		if not _G.CHATBOTHUB_PREMIUM then
-			if doCallbackPrem then
-				OrionLib:MakeNotification{
-					Name = "Error",
-					Content  = "You need to have premium to use this feature!",
-					Image = "rbxassetid://6723839910",
-					Time = 3
-				}
-				resetTogglePrem()
+		if _G.CHATBOTHUB_LOADED then
+			if not _G.CHATBOTHUB_PREMIUM then
+				if doCallbackPrem then
+					OrionLib:MakeNotification{
+						Name = "Error",
+						Content  = "You need to have premium to use this feature!",
+						Image = "rbxassetid://6723839910",
+						Time = 3
+					}
+					resetTogglePrem()
+				end
 			end
+			_G.CHATBOTHUB_CUSTOMPROMPT = state
 		end
-		_G.CHATBOTHUB_CUSTOMPROMPT = state
 	end
 }
 
@@ -502,16 +525,18 @@ PremiumTab:AddTextbox({
 	Default = "",
 	TextDisappear = true,
 	Callback = function(prompt)
-		if not _G.CHATBOTHUB_PREMIUM then
-			OrionLib:MakeNotification{
-				Name = "Error",
-				Content  = "You need to have premium to use this feature!",
-				Image = "rbxassetid://6723839910",
-				Time = 3
-			}
-		else
-			_G.CHATBOTHUB_CUSTOMPROMPTTEXT = prompt
-			updateCustomPrompt()
+		if _G.CHATBOTHUB_LOADED then
+			if not _G.CHATBOTHUB_PREMIUM then
+				OrionLib:MakeNotification{
+					Name = "Error",
+					Content  = "You need to have premium to use this feature!",
+					Image = "rbxassetid://6723839910",
+					Time = 3
+				}
+			else
+				_G.CHATBOTHUB_CUSTOMPROMPTTEXT = prompt
+				updateCustomPrompt()
+			end
 		end
 	end	  
 })
