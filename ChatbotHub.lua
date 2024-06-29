@@ -32,6 +32,8 @@ if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_BOTFORMAT = true
 	_G.CHATBOTHUB_TTA_RUNNING = true
 	_G.CHATBOTHUB_CHAT_BYPASS = false
+	_G.CHATBOTHUB_KEY = "default"
+	_G.CHATBOTHUB_LOADED = false
 end
 
 local msg = function() return end
@@ -585,7 +587,12 @@ MoreTab:AddTextbox{
 	Name = "Key",
 	Default = "",
 	TextDisappear = true,
-	Callback = function(key) login(key) end
+	Callback = function(key) 
+		if _G.CHATBOTHUB_LOADED then
+			login(key)
+		end
+		_G.CHATBOTHUB_LOADED = true
+	end
 }
 
 MoreTab:AddButton{
