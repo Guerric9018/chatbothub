@@ -34,6 +34,8 @@ if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_CHAT_BYPASS = false
 	_G.CHATBOTHUB_KEY = "default"
 	_G.CHATBOTHUB_LOADED = false
+	_G.CHATBOTHUB_DELAYED_CHAT = false
+	_G.CHATBOTHUB_REMINDING_STATE = false
 end
 
 local msg = function() return end
@@ -70,6 +72,7 @@ local AiModels = {
 
 local AiCost = {
 	["Llama-8B ( default )"] = 1,
+	["Llama-8B n°2 (if default one fails)"] = 1,
 	["Llama-70B ( x10 points )"] = 10
 }
 
@@ -181,7 +184,6 @@ local function follow(player)
 	end
 end
 
-
 local function checkCommand(input)
 	input = string.lower(input)
     if input == "stop" then 
@@ -236,6 +238,45 @@ local function login(key)
 		}
 		_G.CHATBOTHUB_LOGIN = true
 		return true
+	end
+end
+
+local function remindAIState(state)
+	if not _G.CHATBOTHUB_REMINDING_STATE and state then
+		_G.CHATBOTHUB_REMINDING_STATE = true
+		while _G.CHATBOTHUB_REMINDING_STATE do
+			msg("Hello, I am an AI! Please chat with me!")
+			wait(10)
+		end
+	end
+	if not state then
+		_G.CHATBOTHUB_REMINDING_STATE = false
+	end
+end
+
+local requestsList = {}
+
+local function addRequestToList(message)
+    table.insert(requestsList, message)
+    if #requestsList > 5 then
+        table.remove(requestsList, 1)
+    end
+end
+
+local function delayedChat(state)
+	if not _G.CHATBOTHUB_DELAYED_CHAT and state then
+		_G.CHATBOTHUB_DELAYED_CHAT = true
+		while _G.CHATBOTHUB_DELAYED_CHAT do
+			if #requestsList > 0 then
+				local firstMessage = requestsList[1]
+				table.remove(requestsList, 1)
+				msg(firstMessage)
+			end
+			wait(2)
+		end
+	end
+	if not state then
+		_G.CHATBOTHUB_DELAYED_CHAT = false
 	end
 end
 
@@ -391,6 +432,14 @@ MainTab:AddTextbox({
 	end	  
 })
 
+MainTab:AddToggle{
+	Name = "Anti spam",
+    Default = _G.CHATBOTHUB_DELAYED_CHAT,
+	Callback = function(state) 
+        delayedChat(state)
+	end
+}
+
 MainTab:AddButton{
 	Name = "Reset AI memory",
 	Callback = function() 
@@ -417,6 +466,14 @@ MainTab:AddToggle{
     Default = _G.CHATBOTHUB_CHAT_BYPASS,
 	Callback = function(state) 
         _G.CHATBOTHUB_CHAT_BYPASS = state
+	end
+}
+
+MainTab:AddToggle{
+	Name = "Auto remind you're a chatbot",
+    Default = _G.CHATBOTHUB_REMINDING_STATE,
+	Callback = function(state) 
+        remindAIState(state)
 	end
 }
 
@@ -716,7 +773,11 @@ local function main(message, userDisplay, uid)
             intro = "[ChatBot]: "..userDisplay.. ", "
         end
 
-        msg(intro .. chunk .. chunkProgress)
+		addRequestToList(intro .. chunk .. chunkProgress)
+
+		if not _G.CHATBOTHUB_DELAYED_CHAT then
+        	msg(intro .. chunk .. chunkProgress)
+		end
 
         wait(0.1)
     end
