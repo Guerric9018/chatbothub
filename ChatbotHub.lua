@@ -67,6 +67,7 @@ local AIs = {
 
 local AiModels = {
 	"Llama-8B ( default )",
+	"Llama-8B n°2 (if default one fails)",
 	"Llama-70B ( x10 points )"
 }
 
