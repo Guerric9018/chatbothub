@@ -67,13 +67,13 @@ local AIs = {
 
 local AiModels = {
 	"Llama-8B ( default )",
-	"Llama-8B n°2 (if default one fails)",
+	"Llama-8B n°2 ( if default one fails )",
 	"Llama-70B ( x10 points )"
 }
 
 local AiCost = {
 	["Llama-8B ( default )"] = 1,
-	["Llama-8B n°2 (if default one fails)"] = 1,
+	["Llama-8B n°2 ( if default one fails )"] = 1,
 	["Llama-70B ( x10 points )"] = 10
 }
 
