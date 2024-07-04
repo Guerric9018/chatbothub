@@ -18,6 +18,11 @@ local LocalPlayer = Players.LocalPlayer
 
 local alreadyRan = true
 
+local GUI = Instance.new("ScreenGui")
+GUI.Parent = game.CoreGui
+GUI.IgnoreGuiInset = true
+GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
 if _G.CHATBOTHUB_RAN == nil then
     alreadyRan = false
 	_G.CHATBOTHUB_TTA = false
@@ -810,6 +815,22 @@ if not alreadyRan then
 	end)
 end
 
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 70, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 1, -160)
+ToggleButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+ToggleButton.TextColor3 = Color3.new(1, 1, 1)
+ToggleButton.Text = "Toggle ChatbotHub"
+ToggleButton.Parent = GUI
+ToggleButton.TextWrapped = true
+ToggleButton.Font = Enum.Font.Code
+local ToggleButtonCornerFrame = Instance.new("UICorner")
+ToggleButtonCornerFrame.CornerRadius = UDim.new(0.2, 0)
+ToggleButtonCornerFrame.Parent = ToggleButton
+
+ToggleButton.MouseButton1Click:Connect(function()
+    OrionLib:Switch()
+end)
 
 _G.CHATBOTHUB_LOADED = true
 
