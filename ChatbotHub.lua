@@ -526,7 +526,7 @@ local resetToggleTTA = function() return end
 local doCallbackTTA = true
 
 local TTAToggle = PremiumTab:AddToggle{
-	Name = "Test to action mode ( 2x points )",
+	Name = "Text to action mode ( 2x points )",
 	Default = _G.CHATBOTHUB_TTA,
 	Callback = function(state)
 		if _G.CHATBOTHUB_LOADED then
@@ -650,6 +650,7 @@ ChatTab:AddTextbox{
 		message = HttpService:UrlEncode(message)
 		local userDisplayURI = HttpService:UrlEncode(LocalPlayer.DisplayName)
 		local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
+		local model = HttpService:UrlEncode(_G.CHATBOTHUB_AI_MODEL)
 		local custom = "no"
 		local shownText = ""
 
@@ -657,7 +658,7 @@ ChatTab:AddTextbox{
 			Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 			custom = "yes"
 		end
-		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=yes&tta=no")
+		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. model .. "&long=yes&tta=no")
 
 		_G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]
 		OrionLib:MakeNotification{
@@ -723,12 +724,13 @@ local function main(message, userDisplay, uid)
 	message = HttpService:UrlEncode(message)
     userDisplayURI = HttpService:UrlEncode(userDisplay)
     local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
+	local model = HttpService:UrlEncode(_G.CHATBOTHUB_AI_MODEL)
 	local custom = "no"
 	if _G.CHATBOTHUB_PREMIUM and _G.CHATBOTHUB_CUSTOMPROMPT then
 		Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 		custom = "yes"
 	end
-    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no&tta=no")
+    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. model .. "&long=no&tta=no")
     local data = response
     
 	if _G.CHATBOTHUB_CHAT_BYPASS then data = translate(data) end
