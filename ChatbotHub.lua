@@ -71,15 +71,15 @@ local AIs = {
 }
 
 local AiModels = {
-	"Llama-8B ( default )",
-	"Llama2-7B ( if default one fails )",
-	"Llama-70B ( x10 points )"
+	"Llama-8B ( default | 5 points )",
+	"Llama2-7B ( if default one fails | 5 points )",
+	"Llama-70B ( 50 points )"
 }
 
 local AiCost = {
-	["Llama-8B ( default )"] = 1,
-	["Llama2-7B ( if default one fails )"] = 1,
-	["Llama-70B ( x10 points )"] = 10
+	["Llama-8B ( default | 5 points )"] = 5,
+	["Llama2-7B ( if default one fails | 5 points )"] = 5,
+	["Llama-70B ( 50 points )"] = 50
 }
 
 if _G.CHATBOTHUB_RAN == nil then
@@ -754,12 +754,12 @@ local function main(message, userDisplay, uid)
    local mult = 1
 
    if _G.CHATBOTHUB_TTA then
-		mult = 2
+		mult = 1.5
    end
 
    _G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]*mult
    OrionLib:MakeNotification{
-    Name = tostring(AiCost[_G.CHATBOTHUB_AI_MODEL]*mult) .. " points used",
+    Name = tostring(math.floor(AiCost[_G.CHATBOTHUB_AI_MODEL]*mult)) .. " points used",
     Content = tostring(_G.CHATBOTHUB_CREDITS) .. " points left",
     Time = 1
     }
