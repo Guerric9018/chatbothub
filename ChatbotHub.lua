@@ -526,7 +526,7 @@ local resetToggleTTA = function() return end
 local doCallbackTTA = true
 
 local TTAToggle = PremiumTab:AddToggle{
-	Name = "Text to action mode ( 2x points )",
+	Name = "Text to action mode ( 1.5x points )",
 	Default = _G.CHATBOTHUB_TTA,
 	Callback = function(state)
 		if _G.CHATBOTHUB_LOADED then
