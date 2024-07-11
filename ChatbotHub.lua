@@ -26,7 +26,7 @@ GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 if _G.CHATBOTHUB_RAN == nil then
     alreadyRan = false
 	_G.CHATBOTHUB_TTA = false
-	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default )"
+	_G.CHATBOTHUB_AI_MODEL = "Llama-8B ( default | 5 points )"
 	_G.CHATBOTHUB_ON = false
 	_G.CHATBOTHUB_CREDITS = 0
 	_G.CHATBOTHUB_LOGIN = false
