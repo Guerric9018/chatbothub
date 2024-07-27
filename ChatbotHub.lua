@@ -982,7 +982,7 @@ if not alreadyRan then
         			end
 					return
 				end
-				main(message, plr.DisplayName, LocalPlayer.UserId, getHistory(player))
+				main(message, plr.DisplayName, LocalPlayer.UserId, getHistory(plr))
 			end
 		end
 	end)
