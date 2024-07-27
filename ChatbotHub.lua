@@ -1,5 +1,7 @@
+-- Custom OrionLib
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Guerric9018/OrionLibFixed/main/OrionLib.lua')))()
 
+-- Initialiazing
 _G.CHATBOTHUB_BLACKLISTED = {
 	--["Name"] = true,
 }
@@ -34,15 +36,22 @@ if _G.CHATBOTHUB_RAN == nil then
 	_G.CHATBOTHUB_CUSTOMPROMPT = false
 	_G.CHATBOTHUB_CUSTOMPROMPTTEXT = "Just be a normal AI."
     _G.CHATBOTHUB_WHITELIST = false
-	_G.CHATBOTHUB_BOTFORMAT = true
+	_G.CHATBOTHUB_BOTFORMAT = false
 	_G.CHATBOTHUB_TTA_RUNNING = true
 	_G.CHATBOTHUB_CHAT_BYPASS = false
 	_G.CHATBOTHUB_KEY = "default"
 	_G.CHATBOTHUB_LOADED = false
 	_G.CHATBOTHUB_DELAYED_CHAT = false
 	_G.CHATBOTHUB_REMINDING_STATE = false
+	_G.CHATBOTHUB_MaxDistance = 20
+	_G.CHATBOTHUB_Character = "Normal"
+	_G.CHATBOTHUB_BUFFER = false
+	_G.CHATBOTHUB_LANGUAGE = "en"
 end
 
+_G.CHATBOTHUB_RAN = true
+
+-- Chat system detection
 local msg = function() return end
 
 
@@ -58,7 +67,14 @@ else
 	msg = function(txt) game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(txt, "All") end
 end
 
+-- Checks if the executor has writefile
+function writeFileAvailable()
+	if writefile then
+		return true
+	end
+end
 
+-- AI characters
 local AIs = {
 	"Furry",
 	"Roast",
@@ -70,29 +86,33 @@ local AIs = {
 	"Normal"
 }
 
+-- AI models
 local AiModels = {
 	"Llama-8B ( default | 5 points )",
 	"Llama2-7B ( if default one fails | 5 points )",
 	"Llama-70B ( 50 points )"
 }
 
+-- Cost of each AI model
 local AiCost = {
 	["Llama-8B ( default | 5 points )"] = 5,
 	["Llama2-7B ( if default one fails | 5 points )"] = 5,
 	["Llama-70B ( 50 points )"] = 50
 }
 
-if _G.CHATBOTHUB_RAN == nil then
-	_G.CHATBOTHUB_MaxDistance = 20
-	_G.CHATBOTHUB_Character = "Normal"
-end
+-- Languages
+local Languages = {
+	"en",
+	"fr",
+	"ru",
+	"es"
+}
 
-_G.CHATBOTHUB_RAN = true
 
 local updateCredits = function() return end
 local updatePremium = function() return end
 
-
+-- Correspondances for chat bypass
 local correspondances = {
 	["h"] = "ẖ",
 	["i"] = "ї",
@@ -111,7 +131,7 @@ local correspondances = {
 	["w"] = "ẇ"
 } 
 
-
+-- Translation to bypassed text
 local function translate(m)
 	m = string.lower(m)
 	for i, j in pairs(correspondances) do
@@ -120,7 +140,7 @@ local function translate(m)
 	return(m)
 end
 
-
+-- Finds player's username and name from its username or displayname
 local findPlayerName = function(name)
 	for i,player in pairs(game.Players:GetChildren()) do
 		local prefix_length = #name
@@ -139,6 +159,7 @@ local findPlayerName = function(name)
 	return nil, nil
 end
 
+-- Finds a player from its username or displayname
 local findPlayer = function(name)
 	for i,player in pairs(game.Players:GetChildren()) do
 		local prefix_length = #name
@@ -157,7 +178,7 @@ local findPlayer = function(name)
 	return nil, nil
 end
 
-
+-- Stops every ongoing action
 local function stopAction()
 	print(stopping)
 	_G.CHATBOTHUB_TTA_RUNNING = false
@@ -165,6 +186,7 @@ local function stopAction()
 	_G.CHATBOTHUB_TTA_RUNNING = true
 end
 
+-- TTA actioons
 local function jump()
 	LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 end
@@ -190,6 +212,7 @@ local function follow(player)
 	end
 end
 
+-- Does the actions depending on the AI response
 local function checkCommand(input)
 	input = string.lower(input)
     if input == "stop" then 
@@ -216,9 +239,9 @@ local function checkCommand(input)
     end
 end
 
+-- Login
 local function login(key)
 	key = HttpService:UrlEncode(key)
-	_G.CHATBOTHUB_KEY = key
 	local response = game:HttpGet("https://guerric.pythonanywhere.com/login?uid="..(tostring(LocalPlayer.UserId)) .. "&key=" .. key)
 	if response == "REFUSED" then
 		OrionLib:MakeNotification{
@@ -230,7 +253,11 @@ local function login(key)
 		return false
 	end
 	if response == "ACCEPTED" then
-		
+		_G.CHATBOTHUB_KEY = key
+		if writeFileAvailable() then
+			print("New key saved")
+			writefile("chatbothub_key.cb", key)
+		end
 		_G.CHATBOTHUB_CREDITS = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/credits?uid="..LocalPlayer.UserId))
 		local premium = tonumber(game:HttpGet("https://guerric.pythonanywhere.com/premium?uid="..LocalPlayer.UserId.."&key=".._G.CHATBOTHUB_KEY))
 		if premium == 1 then _G.CHATBOTHUB_PREMIUM = true else _G.CHATBOTHUB_PREMIUM = false end
@@ -247,6 +274,7 @@ local function login(key)
 	end
 end
 
+-- Repeats 'I am an AI'
 local function remindAIState(state)
 	if not _G.CHATBOTHUB_REMINDING_STATE and state then
 		_G.CHATBOTHUB_REMINDING_STATE = true
@@ -260,6 +288,7 @@ local function remindAIState(state)
 	end
 end
 
+-- For anti spam, messages to be sent
 local requestsList = {}
 
 local function addRequestToList(message)
@@ -286,6 +315,7 @@ local function delayedChat(state)
 	end
 end
 
+-- GUI building
 local Window = OrionLib:MakeWindow({
 	Name = "ChatBot Hub",
 	HidePremium = false,
@@ -446,13 +476,23 @@ MainTab:AddToggle{
 	end
 }
 
+MainTab:AddToggle{
+	Name = "Buffer (adds a 3 seconds delay)",
+    Default = _G.CHATBOTHUB_BUFFER,
+	Callback = function(state) 
+        _G.CHATBOTHUB_BUFFER = state
+	end
+}
+
+local resetHistory = function() return end
+
 MainTab:AddButton{
 	Name = "Reset AI memory",
 	Callback = function() 
-		game:HttpGet("https://guerric.pythonanywhere.com/erase-memory?uid=" .. tostring(LocalPlayer.UserId))
+		resetHistory()
 		OrionLib:MakeNotification{
 			Name = "Success",
-			Content  = "AI's memory erased!",
+			Content = "Memory was successfully reset!",
 			Image = "rbxassetid://7115671043",
 			Time = 3
 		}
@@ -504,6 +544,16 @@ local AiDropDown = CharacterTab:AddDropdown{
 	Options = AiModels,
 	Callback = function(SelectedModel) 
 		_G.CHATBOTHUB_AI_MODEL = SelectedModel
+	end
+}
+
+local LanguageDropDown = CharacterTab:AddDropdown{
+	Name = "Language",
+	Default = _G.CHATBOTHUB_LANGUAGE,
+	Description = "New languages can be added if there is enough demand",
+	Options = Languages,
+	Callback = function(SelectedLanguage) 
+		_G.CHATBOTHUB_LANGUAGE = SelectedLanguage
 	end
 }
 
@@ -642,12 +692,16 @@ updateChat = function(message)
 	ChatLabel:Set(message)
 end
 
+local getHistory = function(player) return "" end
+local addMessageHistory = function(player, message, response) return end
+
 ChatTab:AddTextbox{
 	Name = "Message",
 	Default = "",
 	TextDisappear = true,
-	Callback = function(message) 
-		message = HttpService:UrlEncode(message)
+	Callback = function(message)
+		local messageDecoded = HttpService:UrlEncode(message)
+		local history = HttpService:UrlEncode(getHistory(LocalPlayer))
 		local userDisplayURI = HttpService:UrlEncode(LocalPlayer.DisplayName)
 		local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
 		local model = HttpService:UrlEncode(_G.CHATBOTHUB_AI_MODEL)
@@ -658,7 +712,9 @@ ChatTab:AddTextbox{
 			Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 			custom = "yes"
 		end
-		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. model .. "&long=yes&tta=no")
+		local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..messageDecoded.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&history=" .. history .. "&ai=" .. Character .. "&uid=" .. LocalPlayer.UserId .. "&custom=" .. custom .. "&model=" .. model .. "&lang=" .. _G.CHATBOTHUB_LANGUAGE .. "&long=yes&tta=no")
+		if responseText == "" then return end
+		addMessageHistory(LocalPlayer, message, response)
 
 		_G.CHATBOTHUB_CREDITS -= AiCost[_G.CHATBOTHUB_AI_MODEL]
 		OrionLib:MakeNotification{
@@ -720,9 +776,11 @@ HelpTab:AddParagraph("Help",
 
 OrionLib:Init()
 
-local function main(message, userDisplay, uid)
-	message = HttpService:UrlEncode(message)
+-- Sends a message
+local function main(message, userDisplay, uid, history)
+	local messageDecoded = HttpService:UrlEncode(message)
     userDisplayURI = HttpService:UrlEncode(userDisplay)
+	history = HttpService:UrlEncode(history)
     local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
 	local model = HttpService:UrlEncode(_G.CHATBOTHUB_AI_MODEL)
 	local custom = "no"
@@ -730,19 +788,19 @@ local function main(message, userDisplay, uid)
 		Character = HttpService:UrlEncode(_G.CHATBOTHUB_CUSTOMPROMPTTEXT)
 		custom = "yes"
 	end
-    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. model .. "&long=no&tta=no")
+    local response = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..messageDecoded.."&user="..userDisplayURI.. "&key=" .. _G.CHATBOTHUB_KEY .. "&history=" .. history .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. model .. "&lang=" .. _G.CHATBOTHUB_LANGUAGE .. "&long=no&tta=no")
     local data = response
     
 	if _G.CHATBOTHUB_CHAT_BYPASS then data = translate(data) end
 			
 	if _G.CHATBOTHUB_TTA then
-		ttaResponse = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..message.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. _G.CHATBOTHUB_AI_MODEL .. "&long=no&tta=yes")
-		print(ttaResponse)
+		ttaResponse = game:HttpGet("https://guerric.pythonanywhere.com/chat?msg="..messageDecoded.."&user="..userDisplayURI.."&key=" .. _G.CHATBOTHUB_KEY .. "&history=" .. history .. "&ai=" .. Character .. "&uid=" .. uid .. "&custom=" .. custom .. "&model=" .. model .. "&lang=" .. _G.CHATBOTHUB_LANGUAGE .. "&long=no&tta=yes")
 		checkCommand(ttaResponse)
 	end
 
     local responseText = data:gsub("i love you", "ily"):gsub("wtf", "wt$"):gsub("zex", "zesty"):gsub("\n", " "):gsub("I love you", "ily"):gsub("I don't know what you're saying. Please teach me.", "I do not understand, try saying it without emojis and/or special characters.")
     if responseText == "" then return end
+	addMessageHistory(LocalPlayer, message, responseText)
    wait()
    local offset = 0
    if _G.CHATBOTHUB_BOTFORMAT then
@@ -794,6 +852,107 @@ end
 
 local Players = game:GetService("Players")
 
+-- Buffer system
+
+local playerBuffers = {}
+
+
+local function startBufferTimer(player)
+	print(playerBuffers)
+	print(table.concat(playerBuffers[player].buffer, " "))
+    wait(3)
+    if playerBuffers[player] then
+        main(table.concat(playerBuffers[player].buffer, " "), player.DisplayName, LocalPlayer.UserId)
+        playerBuffers[player].buffer = {}
+        playerBuffers[player].timerStarted = false
+    end
+end
+
+-- Auto spam detection system
+local playerMessageTimestamps = {}
+
+local MESSAGE_LIMIT = 7
+local TIME_FRAME = 10
+
+local function isSpamming(player)
+    local timestamps = playerMessageTimestamps[player]
+    local currentTime = tick()
+    
+    while #timestamps > 0 and currentTime - timestamps[1] > TIME_FRAME do
+        table.remove(timestamps, 1)
+    end
+
+    return #timestamps >= MESSAGE_LIMIT
+end
+
+local function onPlayerChatted(player)
+    if not playerMessageTimestamps[player] then
+        playerMessageTimestamps[player] = {}
+    end
+    
+    table.insert(playerMessageTimestamps[player], tick())
+    
+    if isSpamming(player) then
+        print(player.Name .. " (" .. player.DisplayName .. ") is spamming and has been blacklisted!")
+        addPlayer(player.Name)
+    end
+end
+
+-- Messages history handled locally. It is recommended NOT TO increase MESSAGE_HISTORY_LIMIT
+local playerMessageHistory = {}
+local MESSAGE_HISTORY_LIMIT = 4
+
+addMessageHistory = function(player, message, response)
+	if not playerMessageHistory[player] then
+        playerMessageHistory[player] = {}
+    end
+
+	local history = playerMessageHistory[player]
+    
+	message = string.sub(message, 1, 100)
+	response = string.sub(response, 1, 100)
+
+    table.insert(history, "Previous user message: " .. message)
+	table.insert(history, "Previous AI assistant message: " .. response)
+    
+    if #history > MESSAGE_HISTORY_LIMIT then
+        table.remove(history, 1)
+    end
+end
+    
+resetHistory = function()
+	for _, player in ipairs(Players:GetPlayers()) do
+		playerMessageHistory[player] = {}
+	end
+end
+
+getHistory = function(player)
+	if not playerMessageHistory[player] then
+        playerMessageHistory[player] = {}
+    end
+	return table.concat(playerMessageHistory[player], " --> ")
+end
+
+local function initializePlayer(player)
+    playerBuffers[player] = {buffer = {}, timerStarted = false}
+	playerMessageTimestamps[player] = {}
+	playerMessageHistory[player] = {}
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    initializePlayer(player)
+end
+
+Players.PlayerAdded:Connect(function(player)
+    initializePlayer(player)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    playerBuffers[player] = nil
+	playerMessageTimestamps[player] = nil
+end)
+
+
 if not alreadyRan then
 	Players.PlayerChatted:Connect(function(type, plr, message)
 		if _G.CHATBOTHUB_CUSTOMPROMPT and (not _G.CHATBOTHUB_PREMIUM) then resetTogglePrem() end
@@ -809,14 +968,24 @@ if not alreadyRan then
 			}
 			return
 		end
-		if _G.CHATBOTHUB_ON and ((Players.LocalPlayer.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).magnitude <= _G.CHATBOTHUB_MaxDistance) then
+		if _G.CHATBOTHUB_ON and ((LocalPlayer.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).magnitude <= _G.CHATBOTHUB_MaxDistance) then
 			if plr.Name ~= LocalPlayer.Name and string.sub(message, 1, 1) ~= "#" then
-				main(message, plr.DisplayName, LocalPlayer.UserId)
+				onPlayerChatted(plr)
+				if _G.CHATBOTHUB_BUFFER then
+					table.insert(playerBuffers[plr].buffer, message)
+        			if not playerBuffers[plr].timerStarted then
+            			playerBuffers[plr].timerStarted = true
+            			coroutine.wrap(function() startBufferTimer(plr) end)()
+        			end
+					return
+				end
+				main(message, plr.DisplayName, LocalPlayer.UserId, getHistory(player))
 			end
 		end
 	end)
 end
 
+-- Toggle GUI button
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 70, 0, 40)
 ToggleButton.Position = UDim2.new(0, 10, 1, -160)
@@ -836,4 +1005,12 @@ end)
 
 _G.CHATBOTHUB_LOADED = true
 
+-- Auto login
+if writeFileAvailable() then
+	if readfile("chatbothub_key.cb") ~= nil then
+		login(readfile("chatbothub_key.cb"))
+	end
+end
+
+-- Anti chat logger
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
