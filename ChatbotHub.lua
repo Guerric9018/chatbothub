@@ -953,6 +953,7 @@ end)
 Players.PlayerRemoving:Connect(function(player)
     playerBuffers[player] = nil
 	playerMessageTimestamps[player] = nil
+	playerMessageHistory[player] = nil
 end)
 
 
