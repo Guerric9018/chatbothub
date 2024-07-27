@@ -862,7 +862,7 @@ local function startBufferTimer(player)
 	print(table.concat(playerBuffers[player].buffer, " "))
     wait(3)
     if playerBuffers[player] then
-        main(table.concat(playerBuffers[player].buffer, " "), player.DisplayName, LocalPlayer.UserId)
+        main(table.concat(playerBuffers[player].buffer, " "), player.DisplayName, LocalPlayer.UserId, getHistory(player))
         playerBuffers[player].buffer = {}
         playerBuffers[player].timerStarted = false
     end
