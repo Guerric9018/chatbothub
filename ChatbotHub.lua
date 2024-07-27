@@ -917,6 +917,7 @@ addMessageHistory = function(player, message, response)
     
     if #history > MESSAGE_HISTORY_LIMIT then
         table.remove(history, 1)
+		table.remove(history, 1)
     end
 end
     
