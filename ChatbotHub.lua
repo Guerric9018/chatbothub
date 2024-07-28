@@ -972,6 +972,7 @@ if not alreadyRan then
 			}
 			return
 		end
+		if #message <= 1 then return end
 		if _G.CHATBOTHUB_ON and ((LocalPlayer.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).magnitude <= _G.CHATBOTHUB_MaxDistance) then
 			if plr.Name ~= LocalPlayer.Name and string.sub(message, 1, 1) ~= "#" then
 				onPlayerChatted(plr)
