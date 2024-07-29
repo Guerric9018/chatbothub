@@ -105,7 +105,8 @@ local Languages = {
 	"en",
 	"fr",
 	"ru",
-	"es"
+	"es",
+	"ar"
 }
 
 
