@@ -67,6 +67,29 @@ else
 	msg = function(txt) game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(txt, "All") end
 end
 
+
+-- Anti chat logger (not for Celery)
+
+function launchAntiLogger()
+	if string.sub(identifyexecutor(), 1, 6) ~= "Celery" then
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
+		OrionLib:MakeNotification{
+			Name = "Success",
+			Content = "Anti chat logger launched!",
+			Image = "rbxassetid://7115671043",
+			Time = 3
+		}
+	else
+		print("Celery detected, no anti-chat logger. Use with caution!")
+		OrionLib:MakeNotification{
+			Name = "Error",
+			Content = "You are using Celery, which does not support the anti chat logger.",
+			Image = "rbxassetid://16661795528",
+			Time = 3
+		}
+	end
+end
+
 -- Checks if the executor has writefile
 function writeFileAvailable()
 	if writefile then
@@ -734,6 +757,12 @@ MoreTab:AddButton{
 	end
 }
 
+MoreTab:AddButton{
+	Name = "Anti chat logger",
+	Description = "Click to execute the script",
+	Callback = launchAntiLogger
+}
+
 HelpTab:AddParagraph("Help",
 	"<b>\nIf you encounter issues. Please check the following:</b>\n\n" ..
 		"<font color=\"rgb(255, 0, 0)\"><b>• Have you logged in?</b></font> Have you put your key in the 'more' tab? If not, go get your key on Discord then come back.\n" ..
@@ -982,12 +1011,4 @@ if writeFileAvailable() then
 	if readfile("chatbothub_key.cb") ~= nil then
 		login(readfile("chatbothub_key.cb"))
 	end
-end
-
--- Anti chat logger (not for Celery)
-
-if string.sub(identifyexecutor(), 1, 6) ~= "Celery" then
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
-else
-	print("Celery detected, no anti-chat logger. Use with caution!")
 end
