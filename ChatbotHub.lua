@@ -70,7 +70,7 @@ end
 
 -- Anti chat logger (not for Celery)
 
-function launchAntiLogger()
+local function launchAntiLogger()
 	if string.sub(identifyexecutor(), 1, 6) ~= "Celery" then
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
 		OrionLib:MakeNotification{
