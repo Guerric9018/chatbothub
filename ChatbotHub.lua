@@ -277,7 +277,7 @@ local function remindAIState(state)
 		_G.CHATBOTHUB_REMINDING_STATE = true
 		while _G.CHATBOTHUB_REMINDING_STATE do
 			msg("Hello, I am an AI! Please chat with me!")
-			wait(10)
+			wait(20)
 		end
 	end
 	if not state then
