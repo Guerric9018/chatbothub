@@ -113,33 +113,6 @@ local Languages = {
 local updateCredits = function() return end
 local updatePremium = function() return end
 
--- Correspondances for chat bypass
-local correspondances = {
-	["h"] = "ẖ",
-	["i"] = "ї",
-	["a"] = "ɑ",
-	["u"] = "ṷ",
-	["c"] = "с",
-	["g"] = "ɡ",
-	["n"] = "ṅ",
-	["e"] = "e",
-	["t"] = "ṭ",
-	["l"] = "ḻ",
-	["o"] = "ο",
-	["d"] = "d",
-	["s"] = "ṣ",
-	["k"] = "k",
-	["w"] = "ẇ"
-} 
-
--- Translation to bypassed text
-local function translate(m)
-	m = string.lower(m)
-	for i, j in pairs(correspondances) do
-		m = m:gsub(i, j)
-	end
-	return(m)
-end
 
 -- Finds player's username and name from its username or displayname
 local findPlayerName = function(name)
@@ -508,13 +481,6 @@ MainTab:AddToggle{
 	end
 }
 
-MainTab:AddToggle{
-	Name = "Chat bypass",
-    Default = _G.CHATBOTHUB_CHAT_BYPASS,
-	Callback = function(state) 
-        _G.CHATBOTHUB_CHAT_BYPASS = state
-	end
-}
 
 MainTab:AddToggle{
 	Name = "Auto remind you're a chatbot",
