@@ -959,13 +959,15 @@ if not alreadyRan then
 		if not _G.CHATBOTHUB_LOGIN then return end
 		if (_G.CHATBOTHUB_BLACKLISTED[plr.Name] and not _G.CHATBOTHUB_WHITELIST) or (_G.CHATBOTHUB_WHITELIST and not _G.CHATBOTHUB_BLACKLISTED[plr.Name]) then return end
 		if _G.CHATBOTHUB_CREDITS == 0 then 
-			CreditLabel:Set(0)
-			OrionLib:MakeNotification{
-				Name = "Alert",
-				Content = "No points left on your account! If you think this is an error, please login again.",
-				Time = 3,
-				Image = "rbxassetid://14895395597"
-			}
+			if _G.CHATBOTHUB_ON then
+				CreditLabel:Set(0)
+				OrionLib:MakeNotification{
+					Name = "Alert",
+					Content = "No points left on your account! If you think this is an error, please login again.",
+					Time = 3,
+					Image = "rbxassetid://14895395597"
+				}
+			end
 			return
 		end
 		if #message <= 1 then return end
