@@ -746,7 +746,7 @@ OrionLib:Init()
 -- Sends a message
 local function main(message, userDisplay, uid, history)
 	local messageDecoded = HttpService:UrlEncode(message)
-    userDisplayURI = HttpService:UrlEncode(userDisplay)
+    userDisplayURI = HttpService:UrlEncode(userDisplay:gsub("%d+", ""))
 	history = HttpService:UrlEncode(history)
     local Character = HttpService:UrlEncode(_G.CHATBOTHUB_Character)
 	local model = HttpService:UrlEncode(_G.CHATBOTHUB_AI_MODEL)
