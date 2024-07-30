@@ -1018,5 +1018,10 @@ if writeFileAvailable() then
 	end
 end
 
--- Anti chat logger
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
+-- Anti chat logger (not for Celery)
+
+if string.sub(identifyexecutor(), 1, 6) ~= "Celery" then
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
+else
+	print("Celery detected, no anti-chat logger. Use with caution!")
+end
