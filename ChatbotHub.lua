@@ -71,7 +71,7 @@ end
 -- Anti chat logger (not for Celery)
 
 local function launchAntiLogger()
-	if string.sub(identifyexecutor(), 1, 6) ~= "Celery" then
+	if (string.sub(identifyexecutor(), 1, 6)):lower() ~= "celery" then
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AnthonyIsntHere/anthonysrepository/main/scripts/AntiChatLogger.lua", true))()
 		OrionLib:MakeNotification{
 			Name = "Success",
