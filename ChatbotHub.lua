@@ -774,7 +774,7 @@ HelpTab:AddParagraph("Help",
 OrionLib:Init()
 
 -- Sends a message
-local function main(message, userDisplay, uid, history)
+local function main(message, userDisplay, uid, history, player)
 	local messageDecoded = HttpService:UrlEncode(message)
     userDisplayURI = HttpService:UrlEncode(userDisplay:gsub("%d+", ""))
 	history = HttpService:UrlEncode(history)
@@ -797,7 +797,7 @@ local function main(message, userDisplay, uid, history)
 
     local responseText = data:gsub("i love you", "ily"):gsub("wtf", "wt$"):gsub("zex", "zesty"):gsub("\n", " "):gsub("I love you", "ily"):gsub("I don't know what you're saying. Please teach me.", "I do not understand, try saying it without emojis and/or special characters.")
     if responseText == "" then return end
-	addMessageHistory(LocalPlayer, message, responseText)
+	addMessageHistory(player, message, responseText)
    wait()
    local offset = 0
    if _G.CHATBOTHUB_BOTFORMAT then
@@ -859,7 +859,7 @@ local function startBufferTimer(player)
 	print(table.concat(playerBuffers[player].buffer, " "))
     wait(3)
     if playerBuffers[player] then
-        main(table.concat(playerBuffers[player].buffer, " "), player.DisplayName, LocalPlayer.UserId, getHistory(player))
+        main(table.concat(playerBuffers[player].buffer, " "), player.DisplayName, LocalPlayer.UserId, getHistory(player), player)
         playerBuffers[player].buffer = {}
         playerBuffers[player].timerStarted = false
     end
@@ -983,7 +983,7 @@ if not alreadyRan then
         			end
 					return
 				end
-				main(message, plr.DisplayName, LocalPlayer.UserId, getHistory(plr))
+				main(message, plr.DisplayName, LocalPlayer.UserId, getHistory(plr), plr)
 			end
 		end
 	end)
