@@ -16,8 +16,8 @@ Check out the demo on [YouTube](https://www.youtube.com/watch?v=dmh6hrZmz-g&t=2s
 
 ## Community
 
-Join our Discord community with over 500+ members!
+Join our Discord community with over 7000+ members!
 
 ## More Information
 
-For more info on the script and how to use it, visit our [Discord server](https://discord.gg/MJagjEv9VX).
+For more info on the script and how to use it, visit our [Discord server](https://discord.gg/chatbothub).
